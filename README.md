@@ -65,7 +65,8 @@ python -m reference_agent --goal "Read my latest SMS messages" --guard on
 
 ## Demo
 
-Start an emulator, and open Chrome once to clear its first-run screens. Then:
+Start an emulator, and open Chrome once to clear its first-run screens. `demo.sh` loads settings
+from a `.env` file in the repo root if there is one. Then:
 
 ```bash
 ./demo.sh all              # sms | web | login | all

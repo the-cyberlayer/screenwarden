@@ -6,6 +6,12 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
+if [ -f .env ]; then
+    set -a
+    . <(tr -d '\r' < .env)
+    set +a
+fi
+
 SCENARIO=${1:-all}
 SCRIPTED=${2:-}
 PYTHON=${PYTHON:-python3}
