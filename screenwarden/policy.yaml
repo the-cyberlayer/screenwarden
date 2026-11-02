@@ -40,7 +40,7 @@ untrusted_classes:
 
 visibility:
   min_text_height_px: 12    # shorter than this is unreadable
-  min_px_per_char: 3        # width / characters; catches 1px fonts in wide boxes
+  min_area_per_char_px2: 100 # readable text is ~600px2 per character at 420dpi
 
 overlay:
   min_screen_fraction: 0.05 # ignore tiny foreign chips
@@ -49,7 +49,7 @@ patterns:
   otp_context:
     - '\b(otp|one[- ]time|verification|verify|security|login|auth(entication)?|access|confirmation)\b.{0,40}\b(code|pin|passcode|password)\b'
     - '\b(code|passcode|pin)\b.{0,20}\b(is|:)\s'
-  otp_value: '(?<![\d.+-])\d(?:[ -]?\d){3,7}(?!\d|\.\d)'
+  otp_value: '(?<![\d.+])\d(?:[ -]?\d){3,7}(?!\d|\.\d)'
   phone: '\+?\d[\d ().-]{5,}\d'
   url: '\b(?:https?://|www\.)[^\s"''<>]+'
   instruction:
@@ -83,6 +83,9 @@ patterns:
     - '^send\b'
     - '\bsend (sms|message|mms|encrypted)\b'
     - 'send_message'
+    - 'draft:send'
+  conversation_title: 'Texting with (.+?) \(SMS'
+  compose_hint: '^(text message|rcs message|message|type a message)$'
   install_url: '\.apk(\?|#|$)'
   install_button: '^(install|update|get)\b'
 

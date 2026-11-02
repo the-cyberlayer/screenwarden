@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import unicodedata
 import xml.etree.ElementTree as ET
 from collections import Counter
 from collections.abc import Iterator
@@ -19,6 +20,11 @@ _BOUNDS = re.compile(r"\[(-?\d+),(-?\d+)\]\[(-?\d+),(-?\d+)\]")
 _URL_BAR = re.compile(r"url_bar|location_bar|address", re.I)
 
 
+def _visible_chars(value: str) -> str:
+    """Drop zero-width and format characters, which can split words to dodge patterns."""
+    return "".join(c for c in value if unicodedata.category(c) != "Cf").strip()
+
+
 @dataclass
 class _Node:
     attrs: dict[str, str]
@@ -29,11 +35,11 @@ class _Node:
 
     @property
     def text(self) -> str:
-        return (self.attrs.get("text") or "").strip()
+        return _visible_chars(self.attrs.get("text") or "")
 
     @property
     def desc(self) -> str:
-        return (self.attrs.get("content-desc") or "").strip()
+        return _visible_chars(self.attrs.get("content-desc") or "")
 
     @property
     def package(self) -> str:
@@ -97,8 +103,9 @@ def _hidden_reason(node: _Node, screen: Bounds, policy: Policy) -> tuple[str, st
     width = b[2] - b[0]
     if height < limits["min_text_height_px"]:
         return "tiny_text", f"text is only {height}px tall"
-    if width / max(len(node.label), 1) < limits["min_px_per_char"]:
-        return "tiny_text", f"text gets only {width}px for {len(node.label)} characters"
+    # Area, not width, so wrapped text passes. content-desc is exempt: icons describe themselves.
+    if node.text and _area(b) / len(node.text) < limits["min_area_per_char_px2"]:
+        return "tiny_text", f"{len(node.text)} characters in {width}x{height}px"
     return None
 
 

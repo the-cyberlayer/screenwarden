@@ -107,6 +107,11 @@ class _Ctx:
 
 def _screen_recipient(ctx: _Ctx) -> str | None:
     """Best effort: who the open conversation in a messaging app is with."""
+    for element in ctx.screen.elements:
+        for pattern in ctx.policy.patterns["conversation_title"]:
+            match = pattern.search(element.label)
+            if match:
+                return match.group(1)
     id_hint = re.compile(r"title|recipient|chip|conversation_name|contact", re.I)
     for element in ctx.screen.elements:
         if element.editable or not element.label:
@@ -121,7 +126,8 @@ def _screen_recipient(ctx: _Ctx) -> str | None:
 
 
 def _compose_text(ctx: _Ctx) -> str:
-    return next((e.text for e in ctx.screen.elements if e.editable and e.text), "")
+    return next((e.text for e in ctx.screen.elements
+                 if e.editable and e.text and not ctx.policy.matches("compose_hint", e.text)), "")
 
 
 def _outbound(ctx: _Ctx) -> tuple[str | None, str] | None:
