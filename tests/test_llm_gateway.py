@@ -118,6 +118,11 @@ def test_payment_and_install_are_refused(tmp_path):
         assert "ScreenWarden" in reviewed(gate, plan((action, {"appName": "x"})))
 
 
+@pytest.mark.parametrize("action", ["CLICK_TEXT", "CLICK_ID", "CLICK_COORDINATES", "TYPE_TEXT"])
+def test_raw_ui_control_is_refused(action, tmp_path):
+    assert "ScreenWarden" in reviewed(gateway(tmp_path), plan((action, {"text": "Continue"})))
+
+
 def test_clean_keeps_ordinary_lines(tmp_path):
     guard = SharedSession("g", log_path=tmp_path / "log.jsonl").guard()
     assert clean_tool_output("Lunch at noon?", guard) == "Lunch at noon?"

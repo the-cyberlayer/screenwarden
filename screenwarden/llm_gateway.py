@@ -47,6 +47,7 @@ class OpenDroid:
             "SET_ALARM", "SET_TIMER"}
     PAYMENTS = {"PAY_UPI", "SPLIT_BILL", "ORDER_FOOD", "ORDER_GROCERY", "BOOK_UBER", "BOOK_OLA",
                 "ADD_TO_CART"}
+    UI_CONTROL = {"CLICK_TEXT", "CLICK_ID", "CLICK_COORDINATES", "TYPE_TEXT", "TYPE_ID"}
     RECIPIENT = ("contact", "to", "recipient", "number", "phone", "group")
     BODY = ("message", "body", "text", "content")
 
@@ -75,13 +76,15 @@ class OpenDroid:
     def _step(self, action: str, params: dict) -> dict:
         value = lambda keys: next((str(params[k]) for k in keys if params.get(k)), "")
         name = action.upper()
+        if name in self.UI_CONTROL:  # a plan does not show what this control does
+            return {"type": "ui_control"}
         if name in self.PAYMENTS:
             return {"type": "pay"}
         if name.startswith("INSTALL"):
             return {"type": "install", "package": value(("appName", "package", "name"))}
         if name in ("OPEN_URL", "OPEN_BROWSER"):
             return {"type": "open_url", "url": value(("url",))}
-        if name.startswith(("SEND_", "MAKE_", "SOCIAL_CREATE")) or name == "CLICK_COORDINATES":
+        if name.startswith(("SEND_", "MAKE_", "SOCIAL_CREATE")):
             body = value(self.BODY)
             result = {"type": "send_sms", "recipient": value(self.RECIPIENT), "text": body}
             if _PLACEHOLDER.search(body):
