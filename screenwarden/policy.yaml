@@ -49,7 +49,7 @@ patterns:
   otp_context:
     - '\b(otp|one[- ]time|verification|verify|security|login|auth(entication)?|access|confirmation)\b.{0,40}\b(code|pin|passcode|password)\b'
     - '\b(code|passcode|pin)\b.{0,20}\b(is|:)\s'
-  otp_value: '(?<![\d.+-])\d(?:[ -]?\d){3,7}(?![\d.])'
+  otp_value: '(?<![\d.+-])\d(?:[ -]?\d){3,7}(?!\d|\.\d)'
   phone: '\+?\d[\d ().-]{5,}\d'
   url: '\b(?:https?://|www\.)[^\s"''<>]+'
   instruction:
@@ -64,11 +64,11 @@ patterns:
     - '^\s*(system|assistant|developer)\s*:'
     - '<\s*/?\s*(system|instructions?)\s*>'
   credential_field:
-    - 'pass(word|code|phrase)?'
-    - '\b(pin|cvv|cvc|otp)\b'
+    - 'pass(word|code|phrase)'
+    - '(?<![a-z])(pin|cvv|cvc|otp)(?![a-z])'
     - 'card[ _-]?number'
     - 'sort[ _-]?code'
-    - '\b(iban|username|user[ _-]?id|customer[ _-]?(id|number)|memorable)\b'
+    - 'iban|username|user[ _-]?id|customer[ _-]?(id|number)|memorable'
   login_screen:
     - '\b(sign|log)[ -]?in\b'
     - '\bpassword\b'
@@ -83,9 +83,8 @@ patterns:
     - '^send\b'
     - '\bsend (sms|message|mms|encrypted)\b'
     - 'send_message'
-  settings_change:
-    - '\b(unknown (apps|sources)|install unknown|play protect|developer options|usb debugging|accessibility|device admin|default (sms|phone) app)\b'
   install_url: '\.apk(\?|#|$)'
+  install_button: '^(install|update|get)\b'
 
 # Hosts on which a real login page may appear inside a browser.
 trusted_login_domains:
@@ -103,9 +102,9 @@ actions:
   passive: [back, home, scroll, swipe, wait, done, read]
   active: [tap, type, key, open_app, open_url, send_sms, install]
 
-# One entry per rule. The strictest verdict wins. `verdict` is BLOCK,
-# ASK_HUMAN or ALLOW; `goal_override` softens it when the user's goal itself
-# asks for this kind of thing. Set `enabled: false` to turn a rule off.
+# One entry per rule. The strictest verdict wins, then the order below.
+# `verdict` is BLOCK, ASK_HUMAN or ALLOW. `goal_override` replaces it when the
+# user's goal matches `goal_match`. Set `enabled: false` to turn a rule off.
 rules:
   unsafe_screen:
     verdict: BLOCK
@@ -134,16 +133,19 @@ rules:
   payment:
     verdict: BLOCK
     goal_override: ASK_HUMAN
+    goal_match: '\b(pay|payment|buy|purchase|checkout|order)\b'
     owasp: ASI02
     reason: Action would authorise a payment
   install_app:
     verdict: BLOCK
     goal_override: ASK_HUMAN
+    goal_match: '\b(install|download)\b'
     owasp: ASI02
     reason: Installing apps is not permitted
   settings_change:
     verdict: BLOCK
     goal_override: ASK_HUMAN
+    goal_match: '\bsettings?\b'
     owasp: ASI02
     reason: Changing device settings is not permitted
   otp_entry:
