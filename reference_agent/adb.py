@@ -40,10 +40,15 @@ class Device:
         return self.run("shell", command, timeout=timeout).decode(errors="replace")
 
     def dump_ui(self, retries: int = 4) -> str:
-        """Return the current uiautomator XML, retrying while the UI is settling."""
-        for _ in range(retries):
+        """Return the current uiautomator XML, retrying while the UI is settling.
+
+        --windows (Android 13+) includes every window, so overlays from other apps
+        are visible; older devices reject it and fall back to the active window.
+        """
+        for attempt in range(retries):
+            flag = "--windows " if attempt % 2 == 0 else ""
             self.shell(f"rm -f {DUMP_PATH}")
-            out = self.shell(f"uiautomator dump {DUMP_PATH}")
+            out = self.shell(f"uiautomator dump {flag}{DUMP_PATH}")
             if "dumped to" in out:
                 return self.run("exec-out", "cat", DUMP_PATH).decode("utf-8", errors="replace")
             time.sleep(2)

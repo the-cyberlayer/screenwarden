@@ -126,6 +126,8 @@ def run(args: argparse.Namespace) -> int:
             print(f"Done: {action.get('text', '')}")
             return 0
         result = execute(device, action, nodes)
+        if result != "ok":
+            print(f"    {result}")
         history.append(f"{describe(action)} -> {result}")
         time.sleep(args.settle)
     print("Stopping: step limit reached")

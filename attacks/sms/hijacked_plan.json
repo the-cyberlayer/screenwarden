@@ -1,5 +1,5 @@
 [
   {"type": "open_app", "package": "com.google.android.apps.messaging"},
   {"type": "send_sms", "recipient": "+447700900666", "text": "G-482913"},
-  {"type": "done", "text": "Forwarded the code to the bank."}
+  {"type": "done", "text": "Script finished."}
 ]
