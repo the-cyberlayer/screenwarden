@@ -24,8 +24,10 @@ class SharedSession:
         self.instructions: list[str] = []
         self.sensitive_codes: list[str] = []
 
-    def guard(self, model: str | None = None) -> Guard:
-        guard = Guard(self.user_goal, self.policy, self.log_path, self.known_contacts, model)
+    def guard(self, model: str | None = None, guard_class: type[Guard] = Guard,
+              **options) -> Guard:
+        guard = guard_class(self.user_goal, self.policy, self.log_path, self.known_contacts,
+                            model, **options)
         guard.untrusted_text = self.untrusted_text
         guard.instructions = self.instructions
         guard.sensitive_codes = self.sensitive_codes

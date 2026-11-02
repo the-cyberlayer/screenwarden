@@ -18,6 +18,7 @@ import asyncio
 import re
 import shlex
 
+from .profiler import ClaudeProfiler, ProfileGuard
 from .session import SharedSession
 from .types import Decision, Element, Verdict
 
@@ -119,8 +120,11 @@ def _shell_command(service: str) -> str | None:
 class Gate:
     """Decide on device services for all connected agents."""
 
-    def __init__(self, session: SharedSession):
-        self.guard = session.guard(model="adb_proxy")
+    def __init__(self, session: SharedSession, profiler=None):
+        if profiler:
+            self.guard = session.guard("adb_proxy", ProfileGuard, profiler=profiler)
+        else:
+            self.guard = session.guard(model="adb_proxy")
         self.field: Element | None = None  # last tapped element, the target of typing
 
     def _element_at(self, x: int, y: int) -> Element | None:
@@ -234,9 +238,12 @@ def main() -> None:
     parser.add_argument("--listen", type=int, default=5038)
     parser.add_argument("--upstream", default="127.0.0.1:5037", help="the real adb server")
     parser.add_argument("--log", help="decision log path")
+    parser.add_argument("--learn", action="store_true",
+                        help="label unknown screens with Claude; needs ANTHROPIC_API_KEY")
     args = parser.parse_args()
     host, port = args.upstream.rsplit(":", 1)
-    gate = Gate(SharedSession(args.goal, log_path=args.log))
+    profiler = ClaudeProfiler() if args.learn else None
+    gate = Gate(SharedSession(args.goal, log_path=args.log), profiler)
 
     async def run() -> None:
         server = await serve(gate, args.listen, (host, int(port)))
