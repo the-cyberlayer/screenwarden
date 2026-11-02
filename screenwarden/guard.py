@@ -22,10 +22,11 @@ class Guard:
         self.instructions: list[str] = []
         self.sensitive_codes: list[str] = []
 
-    def observe(self, ui_tree: str | bytes, foreground_package: str | None = None) -> SanitizedScreen:
+    def observe(self, ui_tree: str | bytes, foreground_package: str | None = None,
+                screenshot: bytes | None = None) -> SanitizedScreen:
         self.screen = sanitize_screen(ui_tree, {
             "policy": self.policy, "log_path": self.log_path,
-            "foreground_package": foreground_package})
+            "foreground_package": foreground_package, "screenshot": screenshot})
         for mine, theirs in ((self.untrusted_text, self.screen.untrusted_text),
                              (self.instructions, self.screen.instructions),
                              (self.sensitive_codes, self.screen.sensitive_codes)):

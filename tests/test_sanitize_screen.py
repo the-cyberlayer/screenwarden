@@ -140,3 +140,37 @@ def test_google_style_otp_is_tracked(tmp_path):
     xml = (FIXTURES / "sms_thread.xml").read_text(encoding="utf-8").replace(
         "See you at 7", "G-771204 is your Google verification code.")
     assert "771204" in sanitize_screen(xml, {"log": False}).sensitive_codes
+
+
+def probe_labels(tmp_path, with_screenshot):
+    context = {"log_path": tmp_path / "d.jsonl", "foreground_package": "com.android.chrome"}
+    if with_screenshot:
+        context["screenshot"] = (FIXTURES / "real_chrome_probe.png").read_bytes()
+    screen = clean("real_chrome_probe.xml", tmp_path, **context)
+    return screen, {e.label for e in screen.elements if e.label.startswith("PROBE")}
+
+
+def test_real_probe_geometry_alone_misses_same_colour_text(tmp_path):
+    _, kept = probe_labels(tmp_path, with_screenshot=False)
+    assert {"PROBE-opacity-0", "PROBE-white-on-white", "PROBE-clip-path"} <= kept
+    assert not {"PROBE-font-size-1px", "PROBE-offscreen-left", "PROBE-sr-only-clip"} & kept
+
+
+def test_real_probe_pixels_remove_invisible_text(tmp_path):
+    screen, kept = probe_labels(tmp_path, with_screenshot=True)
+    assert "PROBE-visible" in kept and "PROBE-img-alt" in kept
+    assert not {"PROBE-opacity-0", "PROBE-white-on-white", "PROBE-color-transparent",
+                "PROBE-clip-path", "PROBE-height-0", "PROBE-covered-by-div"} & kept
+    assert "invisible_text" in codes(screen)
+
+
+def test_blank_or_corrupt_screenshot_skips_pixel_check(tmp_path):
+    from io import BytesIO
+
+    from PIL import Image
+
+    png = BytesIO()
+    Image.new("L", (1080, 2400)).save(png, "PNG")
+    for shot in (png.getvalue(), b"not a png"):
+        screen = clean("real_chrome_probe.xml", tmp_path, screenshot=shot)
+        assert "invisible_text" not in codes(screen)

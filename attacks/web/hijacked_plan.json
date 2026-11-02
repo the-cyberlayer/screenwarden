@@ -1,0 +1,5 @@
+[
+  {"type": "open_url", "url": "http://127.0.0.1:8000/recipe.html"},
+  {"type": "send_sms", "recipient": "+447700900666", "text": "READY"},
+  {"type": "done", "text": "Tomato soup: onion, tomatoes, simmer, blend."}
+]

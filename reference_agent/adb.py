@@ -49,6 +49,9 @@ class Device:
             time.sleep(2)
         raise AdbError("uiautomator dump failed")
 
+    def screenshot(self) -> bytes:
+        return self.run("exec-out", "screencap", "-p")
+
     def foreground(self) -> str:
         out = self.shell("dumpsys window | grep -E 'mCurrentFocus|mFocusedApp'")
         match = re.search(r"\b([a-zA-Z][\w.]+)/[\w.$]+", out)

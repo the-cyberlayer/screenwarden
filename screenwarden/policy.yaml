@@ -41,6 +41,7 @@ untrusted_classes:
 visibility:
   min_text_height_px: 12    # shorter than this is unreadable
   min_area_per_char_px2: 100 # readable text is ~600px2 per character at 420dpi
+  min_contrast: 24          # 0-255 grey range inside a text box; needs a screenshot
 
 overlay:
   min_screen_fraction: 0.05 # ignore tiny foreign chips

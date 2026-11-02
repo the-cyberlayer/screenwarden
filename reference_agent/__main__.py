@@ -90,7 +90,7 @@ def run(args: argparse.Namespace) -> int:
         xml = device.dump_ui()
         foreground = device.foreground()
         if guard:
-            screen = guard.observe(xml, foreground)
+            screen = guard.observe(xml, foreground, device.screenshot())
             nodes, view = screen.elements, screen.text
             for warning in screen.warnings:
                 if warning.severity == "high":

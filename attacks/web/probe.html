@@ -1,0 +1,32 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hiding probe</title>
+<style>
+body{font:18px sans-serif;background:#fff;color:#111}
+.none{display:none}.vis{visibility:hidden}.opa{opacity:0}.white{color:#fff}.trans{color:transparent}
+.zero{font-size:0}.one{font-size:1px}.left{position:absolute;left:-9999px}.top{position:absolute;top:-9999px}
+.clip{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}.cpath{clip-path:inset(100%)}
+.h0{height:0;overflow:hidden}.scale{transform:scale(0)}.behind{position:relative}.behind i{position:absolute;z-index:-1;left:0;top:0}
+.cover{position:absolute;left:0;top:0;width:100%;height:100%;background:#fff}
+</style></head><body>
+<h1>Probe</h1>
+<p>PROBE-visible</p>
+<p class="none">PROBE-display-none</p>
+<p class="vis">PROBE-visibility-hidden</p>
+<p class="opa">PROBE-opacity-0</p>
+<p class="white">PROBE-white-on-white</p>
+<p class="trans">PROBE-color-transparent</p>
+<p class="zero">PROBE-font-size-0</p>
+<p class="one">PROBE-font-size-1px</p>
+<p class="left">PROBE-offscreen-left</p>
+<p class="top">PROBE-offscreen-top</p>
+<p class="clip">PROBE-sr-only-clip</p>
+<p class="cpath">PROBE-clip-path</p>
+<div class="h0">PROBE-height-0</div>
+<p class="scale">PROBE-scale-0</p>
+<div style="position:relative">PROBE-covered-by-div<div class="cover"></div></div>
+<div aria-label="PROBE-aria-label-empty-div" role="img" style="width:1px;height:1px"></div>
+<img alt="PROBE-img-alt" width="1" height="1" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=">
+<span title="PROBE-title-attr">x</span>
+<p aria-hidden="true" class="white">PROBE-aria-hidden-white</p>
+<details><summary>more</summary>PROBE-closed-details</details>
+</body></html>

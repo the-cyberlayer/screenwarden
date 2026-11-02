@@ -12,6 +12,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 from .decision_log import write_decision
+from .pixels import PixelView, load as load_pixels
 from .policy import Policy, load_policy
 from .types import Element, SanitizedScreen, ScreenWarning
 
@@ -85,7 +86,8 @@ def _foreground(nodes: list[_Node], policy: Policy) -> str:
     return max(pool, key=pool.get) if pool else ""
 
 
-def _hidden_reason(node: _Node, screen: Bounds, policy: Policy) -> tuple[str, str] | None:
+def _hidden_reason(node: _Node, screen: Bounds, policy: Policy, pixels: PixelView | None
+                   ) -> tuple[str, str] | None:
     b = node.bounds
     limits = policy.visibility
     if node.hidden_by_parent:
@@ -106,6 +108,11 @@ def _hidden_reason(node: _Node, screen: Bounds, policy: Policy) -> tuple[str, st
     # Area, not width, so wrapped text passes. content-desc is exempt: icons describe themselves.
     if node.text and _area(b) / len(node.text) < limits["min_area_per_char_px2"]:
         return "tiny_text", f"{len(node.text)} characters in {width}x{height}px"
+    untrusted = node.in_web or policy.is_untrusted_package(node.package)
+    if pixels and untrusted and node.text and b[3] <= screen[3]:
+        contrast = pixels.contrast(b)
+        if contrast < limits["min_contrast"]:
+            return "invisible_text", f"in the UI tree but not on screen (contrast {contrast})"
     return None
 
 
@@ -157,7 +164,8 @@ def sanitize_screen(ui_tree: str | bytes, context: dict[str, Any] | None = None)
 
     Hidden nodes, foreign overlays and instruction-like text from untrusted
     sources are removed from `.elements`/`.text` and reported in `.warnings`.
-    context: optional {"foreground_package", "policy", "log_path", "log": False}.
+    context: optional {"foreground_package", "policy", "log_path", "log": False,
+    "screenshot": PNG bytes, enabling the check for text no human can see}.
     """
     context = context or {}
     policy = context.get("policy") or load_policy()
@@ -193,6 +201,7 @@ def sanitize_screen(ui_tree: str | bytes, context: dict[str, Any] | None = None)
             "overlay", "high", f"{package} is drawing over {result.foreground}",
             package=package, owasp="ASI01"))
 
+    pixels = load_pixels(context.get("screenshot"))
     labels: list[str] = []
     has_password = False
     next_id = 1
@@ -208,7 +217,7 @@ def sanitize_screen(ui_tree: str | bytes, context: dict[str, Any] | None = None)
             continue
 
         if node.label:
-            hidden = _hidden_reason(node, screen, policy)
+            hidden = _hidden_reason(node, screen, policy, pixels)
             if hidden:
                 code, why = hidden
                 _warn(result, policy, code, f"Removed hidden text: {why}", node)
