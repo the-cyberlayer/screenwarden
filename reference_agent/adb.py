@@ -31,7 +31,12 @@ class Device:
             self.base += ["-s", serial]
 
     def run(self, *args: str, timeout: float = 60) -> bytes:
-        done = subprocess.run([*self.base, *args], capture_output=True, timeout=timeout)
+        for _ in range(3):
+            done = subprocess.run([*self.base, *args], capture_output=True, timeout=timeout)
+            # Under load WSL can fail to start a Windows adb.exe; the command never ran.
+            if b"UtilAcceptVsock" not in done.stdout + done.stderr:
+                break
+            time.sleep(2)
         if done.returncode:
             raise AdbError(f"adb {' '.join(args)}: {done.stderr.decode(errors='replace').strip()}")
         return done.stdout
