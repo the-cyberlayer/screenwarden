@@ -1,0 +1,164 @@
+# ScreenWarden policy. All detection patterns and verdicts live here.
+# Patterns are Python regular expressions, matched case-insensitively.
+version: 1
+
+log_path: screenwarden_decisions.jsonl
+
+owasp:
+  ASI01: Agent Goal Hijack
+  ASI02: Tool Misuse
+
+# Numbers or contact names the agent may message without the goal naming them.
+known_contacts: []
+
+packages:
+  messaging:
+    - com.google.android.apps.messaging
+    - com.android.messaging
+    - com.samsung.android.messaging
+  browsers:
+    - com.android.chrome
+    - org.mozilla.firefox
+    - com.sec.android.app.sbrowser
+  settings:
+    - com.android.settings
+  installers:
+    - com.android.vending
+    - com.android.packageinstaller
+    - com.google.android.packageinstaller
+  # May draw over the foreground app without being treated as an overlay.
+  overlay_allowed:
+    - android
+    - com.android.systemui
+    - com.google.android.inputmethod.latin
+    - com.android.inputmethod.latin
+    - com.google.android.apps.nexuslauncher
+
+# Views whose text comes from the outside world, wherever they are hosted.
+untrusted_classes:
+  - android.webkit.WebView
+
+visibility:
+  min_text_height_px: 12    # shorter than this is unreadable
+  min_px_per_char: 3        # width / characters; catches 1px fonts in wide boxes
+
+overlay:
+  min_screen_fraction: 0.05 # ignore tiny foreign chips
+
+patterns:
+  otp_context:
+    - '\b(otp|one[- ]time|verification|verify|security|login|auth(entication)?|access|confirmation)\b.{0,40}\b(code|pin|passcode|password)\b'
+    - '\b(code|passcode|pin)\b.{0,20}\b(is|:)\s'
+  otp_value: '(?<![\d.+-])\d(?:[ -]?\d){3,7}(?![\d.])'
+  phone: '\+?\d[\d ().-]{5,}\d'
+  url: '\b(?:https?://|www\.)[^\s"''<>]+'
+  instruction:
+    - '\b(ignore|disregard|forget|override)\b.{0,30}\b(previous|prior|above|earlier|all|your|system)\b.{0,30}\b(instruction|prompt|rule|goal|task)s?\b'
+    - '\b(forward|send|share|reply with|text|relay|pass on)\b.{0,40}\b(code|otp|pin|passcode|password|message)\b.{0,40}\b(to|at|on)\b'
+    - '\b(forward|send|share)\b.{0,40}\b(to|at)\b\s*\+?\d'
+    - '\b(ai|llm|phone|virtual|automated)[ -]?(agent|assistant|bot)\b'
+    - '\b(new|updated|important|urgent|additional|system)\s+(instruction|task|directive|goal)s?\b'
+    - '\byou\s+(must|should|need to|are required to|have to)\b.{0,50}\b(open|tap|click|send|forward|install|enable|disable|navigate|go to|type|enter)\b'
+    - '\b(do not|don''t|never)\s+(tell|inform|notify|alert|mention|show)\b'
+    - '\b(before|instead of)\s+(continuing|proceeding|doing|completing)\b'
+    - '^\s*(system|assistant|developer)\s*:'
+    - '<\s*/?\s*(system|instructions?)\s*>'
+  credential_field:
+    - 'pass(word|code|phrase)?'
+    - '\b(pin|cvv|cvc|otp)\b'
+    - 'card[ _-]?number'
+    - 'sort[ _-]?code'
+    - '\b(iban|username|user[ _-]?id|customer[ _-]?(id|number)|memorable)\b'
+  login_screen:
+    - '\b(sign|log)[ -]?in\b'
+    - '\bpassword\b'
+  brand:
+    - '\b(barclays|hsbc|lloyds|natwest|santander|monzo|revolut|paypal|chase|wise|google|apple|microsoft)\b'
+    - '\bbank(ing)?\b'
+  payment:
+    - '\b(pay now|confirm payment|make (a )?payment|transfer (money|funds)|card details|checkout|place order|buy now|send money)\b'
+  payment_action:
+    - '\b(pay|pay now|confirm|authorise|authorize|transfer|buy|place order|send money)\b'
+  send_button:
+    - '^send\b'
+    - '\bsend (sms|message|mms|encrypted)\b'
+    - 'send_message'
+  settings_change:
+    - '\b(unknown (apps|sources)|install unknown|play protect|developer options|usb debugging|accessibility|device admin|default (sms|phone) app)\b'
+  install_url: '\.apk(\?|#|$)'
+
+# Hosts on which a real login page may appear inside a browser.
+trusted_login_domains:
+  - accounts.google.com
+  - login.microsoftonline.com
+  - appleid.apple.com
+  - paypal.com
+  - barclays.co.uk
+  - hsbc.co.uk
+  - lloydsbank.com
+  - natwest.com
+
+# Action types a phone agent may emit. Anything else hits unknown_action.
+actions:
+  passive: [back, home, scroll, swipe, wait, done, read]
+  active: [tap, type, key, open_app, open_url, send_sms, install]
+
+# One entry per rule. The strictest verdict wins. `verdict` is BLOCK,
+# ASK_HUMAN or ALLOW; `goal_override` softens it when the user's goal itself
+# asks for this kind of thing. Set `enabled: false` to turn a rule off.
+rules:
+  unsafe_screen:
+    verdict: BLOCK
+    owasp: ASI01
+    reason: Screen could not be parsed, so its content cannot be trusted
+  otp_exfiltration:
+    verdict: BLOCK
+    owasp: ASI02
+    reason: Verification code would leave the device in a message
+  tainted_origin:
+    verdict: BLOCK
+    owasp: ASI01
+    reason: Action parameters come from untrusted screen content, not from the user's goal
+  unknown_recipient:
+    verdict: BLOCK
+    owasp: ASI02
+    reason: Recipient is neither in the user's goal nor a known contact
+  credential_entry:
+    verdict: BLOCK
+    owasp: ASI02
+    reason: Agents must not enter credentials
+  spoofed_screen:
+    verdict: BLOCK
+    owasp: ASI01
+    reason: Screen imitates a login or banking page
+  payment:
+    verdict: BLOCK
+    goal_override: ASK_HUMAN
+    owasp: ASI02
+    reason: Action would authorise a payment
+  install_app:
+    verdict: BLOCK
+    goal_override: ASK_HUMAN
+    owasp: ASI02
+    reason: Installing apps is not permitted
+  settings_change:
+    verdict: BLOCK
+    goal_override: ASK_HUMAN
+    owasp: ASI02
+    reason: Changing device settings is not permitted
+  otp_entry:
+    verdict: ASK_HUMAN
+    owasp: ASI02
+    reason: Verification code would be typed outside a messaging app
+  payment_screen:
+    verdict: ASK_HUMAN
+    owasp: ASI02
+    reason: Interacting with a payment screen needs human approval
+  overlay_present:
+    verdict: ASK_HUMAN
+    owasp: ASI01
+    reason: Another app is drawing over the foreground app
+  unknown_action:
+    verdict: ASK_HUMAN
+    owasp: ASI02
+    reason: Action type is not in the policy
