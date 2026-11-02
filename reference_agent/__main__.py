@@ -10,6 +10,8 @@ import time
 from . import ui
 from .adb import Device
 from .llm import get_llm
+from screenwarden.decision_log import write_decision
+from screenwarden.policy import load_policy
 
 SYSTEM = """You operate an Android phone for the user. Each turn you get the user's goal, \
 the actions so far, and the elements on the current screen. Reply with one JSON object only:
@@ -78,10 +80,11 @@ def approve(decision) -> bool:
 def run(args: argparse.Namespace) -> int:
     device = Device(args.device)
     llm = get_llm()
+    policy = load_policy()
     guard = None
     if args.guard == "on":
         from screenwarden import Guard
-        guard = Guard(args.goal, log_path=args.log)
+        guard = Guard(args.goal, policy=policy, log_path=args.log, model=llm.model)
     print(f"Goal: {args.goal}\nGuard: {args.guard}")
 
     history: list[str] = []
@@ -103,6 +106,10 @@ def run(args: argparse.Namespace) -> int:
         prompt = (f"Goal: {args.goal}\n\nActions so far:\n" + ("\n".join(history) or "none")
                   + f"\n\nForeground app: {foreground}\nScreen:\n{view}")
         action = llm.next_action(SYSTEM, prompt, nodes)
+        write_decision({"event": "agent_step", "model": llm.model, "guard": args.guard,
+                        "step": step, "goal": args.goal, "action": action}, policy, args.log)
+        if guard:
+            guard.model = llm.model
         print(f"[{step}] {describe(action)}")
         if action.get("thought"):
             print(f"    thought: {action['thought']}")

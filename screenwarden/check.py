@@ -278,7 +278,8 @@ def check_action(action: dict[str, Any], context: dict[str, Any] | None = None) 
     if context.get("log", True):
         safe_action = {k: v for k, v in action.items() if isinstance(v, (str, int))}
         write_decision(
-            {"event": "check_action", "goal": context.get("goal"), "action": safe_action,
+            {"event": "check_action", "model": context.get("model"),
+             "goal": context.get("goal"), "action": safe_action,
              **decision.to_dict()},
             policy,
             context.get("log_path"),

@@ -23,17 +23,16 @@ class Anthropic:
         self.model = os.environ.get("ANTHROPIC_MODEL", "claude-opus-5-5")
 
     def next_action(self, system: str, prompt: str, nodes=None) -> dict:
-        response = self.client.beta.messages.create(
+        response = self.client.messages.create(
             model=self.model,
             max_tokens=4096,
             system=system,
             output_config={"effort": "low"},
-            betas=["server-side-fallback-2026-07-01"],
-            fallbacks="default",
             messages=[{"role": "user", "content": prompt}],
         )
+        self.model = response.model  # the model that actually answered
         if response.stop_reason == "refusal":
-            raise RuntimeError("model refused the request")
+            return {"type": "done", "text": "model refused the request"}
         return parse_action("".join(b.text for b in response.content if b.type == "text"))
 
 
@@ -51,7 +50,9 @@ class Ollama:
         request = urllib.request.Request(f"{self.url}/api/chat", body,
                                          {"Content-Type": "application/json"})
         with urllib.request.urlopen(request, timeout=300) as reply:
-            return parse_action(json.load(reply)["message"]["content"])
+            answer = json.load(reply)
+        self.model = answer["model"]
+        return parse_action(answer["message"]["content"])
 
 
 class Scripted:
@@ -63,6 +64,7 @@ class Scripted:
     """
 
     def __init__(self):
+        self.model = "scripted"
         with open(os.environ["SCRIPTED_PLAN"], encoding="utf-8") as f:
             self.steps = json.load(f)
 

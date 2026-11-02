@@ -27,5 +27,7 @@ def redact(value: Any) -> Any:
 def write_decision(record: dict, policy: Policy, path: str | os.PathLike | None = None) -> None:
     path = path or os.environ.get("SCREENWARDEN_LOG") or policy.raw["log_path"]
     entry = {"ts": datetime.now(timezone.utc).isoformat(timespec="milliseconds"), **redact(record)}
+    if record.get("model"):
+        entry["model"] = record["model"]  # an ID, not a secret: dated IDs must stay exact
     with open(path, "a", encoding="utf-8") as f:
         f.write(json.dumps(entry, ensure_ascii=False, default=str) + "\n")

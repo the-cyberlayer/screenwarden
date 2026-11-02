@@ -254,7 +254,8 @@ def _log(result: SanitizedScreen, policy: Policy, context: dict) -> None:
     if not context.get("log", True):
         return
     write_decision(
-        {"event": "sanitize_screen", "foreground": result.foreground,
+        {"event": "sanitize_screen", "model": context.get("model"),
+         "foreground": result.foreground,
          "flags": sorted(result.flags),
          "warnings": [{"code": w.code, "severity": w.severity, "reason": w.message,
                        "owasp": w.owasp, "text": w.text[:120]} for w in result.warnings],
