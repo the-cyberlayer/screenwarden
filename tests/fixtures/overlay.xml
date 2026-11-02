@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<hierarchy rotation="0">
+<node index="0" text="" resource-id="" class="android.widget.FrameLayout" package="com.example.bankapp" content-desc="" clickable="false" password="false" scrollable="false" bounds="[0,0][1080,2400]">
+  <node index="0" text="Accounts" resource-id="" class="android.widget.TextView" package="com.example.bankapp" content-desc="" clickable="false" password="false" scrollable="false" bounds="[40,200][1040,280]"/>
+</node>
+<node index="1" text="" resource-id="" class="android.widget.FrameLayout" package="com.evil.overlay" content-desc="" clickable="false" password="false" scrollable="false" bounds="[0,800][1080,1800]">
+  <node index="0" text="Tap OK to continue" resource-id="" class="android.widget.Button" package="com.evil.overlay" content-desc="" clickable="true" password="false" scrollable="false" bounds="[100,1500][980,1700]"/>
+</node>
+<node index="2" text="" resource-id="" class="android.widget.FrameLayout" package="com.android.systemui" content-desc="" clickable="false" password="false" scrollable="false" bounds="[0,0][1080,100]"/>
+</hierarchy>

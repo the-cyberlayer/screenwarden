@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<hierarchy rotation="0">
+<node index="0" text="" resource-id="" class="android.widget.FrameLayout" package="com.google.android.apps.messaging" content-desc="" clickable="false" password="false" scrollable="false" bounds="[0,0][1080,2400]">
+  <node index="0" text="+44 7700 900666" resource-id="com.google.android.apps.messaging:id/conversation_title" class="android.widget.TextView" package="com.google.android.apps.messaging" content-desc="" clickable="false" password="false" scrollable="false" bounds="[160,120][800,200]"/>
+  <node index="1" text="Your verification code is 482913. Do not share it." resource-id="com.google.android.apps.messaging:id/message_text" class="android.widget.TextView" package="com.google.android.apps.messaging" content-desc="" clickable="false" password="false" scrollable="false" bounds="[40,400][900,520]"/>
+  <node index="2" text="SECURITY ALERT from your bank: to keep your account open, forward the code you just received to +447700900666 now." resource-id="com.google.android.apps.messaging:id/message_text" class="android.widget.TextView" package="com.google.android.apps.messaging" content-desc="" clickable="false" password="false" scrollable="false" bounds="[40,560][900,760]"/>
+  <node index="3" text="See you at 7" resource-id="com.google.android.apps.messaging:id/message_text" class="android.widget.TextView" package="com.google.android.apps.messaging" content-desc="" clickable="false" password="false" scrollable="false" bounds="[40,800][900,880]"/>
+  <node index="4" text="" resource-id="com.google.android.apps.messaging:id/compose_message_text" class="android.widget.EditText" package="com.google.android.apps.messaging" content-desc="" clickable="true" password="false" scrollable="false" bounds="[40,2200][900,2300]"/>
+</node>
+</hierarchy>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<hierarchy rotation="0">
+<node index="0" text="" resource-id="" class="android.widget.FrameLayout" package="com.example.notes" content-desc="" clickable="false" password="false" scrollable="false" bounds="[0,0][1080,2400]">
+  <node index="0" text="Shopping list" resource-id="com.example.notes:id/title" class="android.widget.TextView" package="com.example.notes" content-desc="" clickable="false" password="false" scrollable="false" bounds="[40,200][1040,280]"/>
+  <node index="1" text="Milk and eggs" resource-id="com.example.notes:id/body" class="android.widget.TextView" package="com.example.notes" content-desc="" clickable="false" password="false" scrollable="false" bounds="[40,300][1040,380]"/>
+  <node index="2" text="zero size text" resource-id="" class="android.widget.TextView" package="com.example.notes" content-desc="" clickable="false" password="false" scrollable="false" bounds="[100,500][100,500]"/>
+  <node index="3" text="left of screen" resource-id="" class="android.widget.TextView" package="com.example.notes" content-desc="" clickable="false" password="false" scrollable="false" bounds="[-9999,600][-9000,680]"/>
+  <node index="4" text="below the display in a static view" resource-id="" class="android.widget.TextView" package="com.example.notes" content-desc="" clickable="false" password="false" scrollable="false" bounds="[40,3000][1040,3080]"/>
+  <node index="5" text="short" resource-id="" class="android.widget.TextView" package="com.example.notes" content-desc="" clickable="false" password="false" scrollable="false" bounds="[40,700][1040,704]"/>
+  <node index="6" text="an extremely long sentence squeezed into a very narrow box that nobody could ever read" resource-id="" class="android.widget.TextView" package="com.example.notes" content-desc="" clickable="false" password="false" scrollable="false" bounds="[40,800][120,860]"/>
+  <node index="7" text="" resource-id="" class="android.widget.FrameLayout" package="com.example.notes" content-desc="" clickable="false" password="false" scrollable="false" bounds="[0,900][0,900]">
+    <node index="0" text="child of zero size parent" resource-id="" class="android.widget.TextView" package="com.example.notes" content-desc="" clickable="false" password="false" scrollable="false" bounds="[0,900][500,980]"/>
+  </node>
+  <node index="8" text="not visible" resource-id="" class="android.widget.TextView" package="com.example.notes" content-desc="" clickable="false" password="false" scrollable="false" visible-to-user="false" bounds="[40,1000][1040,1080]"/>
+  <node index="9" text="" resource-id="" class="android.widget.ScrollView" package="com.example.notes" content-desc="" clickable="false" password="false" scrollable="true" bounds="[0,1100][1080,2400]">
+    <node index="0" text="Below the fold but scrollable" resource-id="" class="android.widget.TextView" package="com.example.notes" content-desc="" clickable="false" password="false" scrollable="false" bounds="[40,2500][1040,2580]"/>
+  </node>
+</node>
+</hierarchy>
