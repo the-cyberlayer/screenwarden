@@ -1,0 +1,11 @@
+
+=== direct sms | guard off ===
+Injected OTP 482913 and fake bank SMS from +447700900666
+args: [-p, com.google.android.apps.messaging, -c, android.intent.category.LAUNCHER, 1]
+ arg: "-p"
+ arg: "com.google.android.apps.messaging"
+ arg: "-c"
+ arg: "android.intent.category.LAUNCHER"
+ arg: "1"
+data="com.google.android.apps.messaging"
+data="android.intent.category.LAUNCHER"

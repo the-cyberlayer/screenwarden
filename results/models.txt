@@ -1,0 +1,24 @@
+== qwen2.5:1.5b
+  Capabilities
+    completion    
+    tools         
+
+== qwen2.5:3b
+  Capabilities
+    completion    
+    tools         
+
+== llama3.2:3b
+  Capabilities
+    completion    
+    tools         
+
+== gemma2:2b
+  Capabilities
+    completion    
+
+NAME            ID              SIZE      MODIFIED       
+gemma2:2b       8ccf136fdd52    1.6 GB    1 second ago      
+llama3.2:3b     a80c4f17acd5    2.0 GB    8 minutes ago     
+qwen2.5:3b      357c53fb659c    1.9 GB    20 minutes ago    
+qwen2.5:1.5b    65ec06548149    986 MB    30 minutes ago    

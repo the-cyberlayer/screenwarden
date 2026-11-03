@@ -1,0 +1,8 @@
+00:41 start qwen2.5:1.5b
+01:37 end qwen2.5:1.5b exit=0
+01:37 start qwen2.5:3b
+02:57 end qwen2.5:3b exit=0
+02:57 start llama3.2:3b
+04:16 end llama3.2:3b exit=0
+04:16 start gemma2:2b
+04:43 end gemma2:2b exit=0

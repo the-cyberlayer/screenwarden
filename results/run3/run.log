@@ -1,0 +1,7 @@
+07:18 start web llama3.2:3b #1
+11:15 start web llama #1
+11:26 end web llama #1 exit=0
+11:26 start web llama #2
+11:33 end web llama #2 exit=0
+11:33 start web llama #3
+11:44 end web llama #3 exit=0
