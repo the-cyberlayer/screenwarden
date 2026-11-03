@@ -55,7 +55,9 @@ class Device:
             self.shell(f"rm -f {DUMP_PATH}")
             out = self.shell(f"uiautomator dump {flag}{DUMP_PATH}")
             if "dumped to" in out:
-                return self.run("exec-out", "cat", DUMP_PATH).decode("utf-8", errors="replace")
+                xml = self.run("exec-out", "cat", DUMP_PATH).decode("utf-8", errors="replace")
+                if "</hierarchy>" in xml:  # a busy bridge can return an empty or cut file
+                    return xml[xml.find("<"):]
             time.sleep(2)
         raise AdbError("uiautomator dump failed")
 
