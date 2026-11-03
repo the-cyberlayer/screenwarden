@@ -101,6 +101,16 @@ def test_send_button_on_an_unknown_app_is_blocked(tmp_path):
     assert g.check({"type": "tap", "target": element(g, "go").id}).verdict is Verdict.BLOCK
 
 
+def test_label_inside_a_learned_button_counts_as_the_button(tmp_path):
+    inner = ('<node class="android.view.View" content-desc="Send SMS" package="{APP}"'
+             ' bounds="[810,1810][1070,2190]"/>\n</node>\n</hierarchy>').replace("{APP}", APP)
+    xml = screen().rsplit("</node>", 1)[0] + inner
+    g = guard(tmp_path, Fake())
+    g.observe(xml, APP)
+    label = next(e for e in g.screen.elements if e.label == "Send SMS")
+    assert g.check({"type": "tap", "target": label.id}).verdict is Verdict.BLOCK
+
+
 def test_harmless_control_stays_allowed_once_learned(tmp_path):
     g = guard(tmp_path, Fake())
     g.observe(screen(), APP)

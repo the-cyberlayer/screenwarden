@@ -271,6 +271,18 @@ class ProfileGuard(Guard):
         return target if isinstance(target, Element) else self.screen.element(target) \
             if isinstance(target, int) else None
 
+    _ACTING = ("send", "credential", "payment", "install", "settings", "confirm")
+
+    def _role_at(self, profile: Profile, element: Element | None) -> str | None:
+        """The role of the control under a tap: a label inside a button acts as the button."""
+        if element is None:
+            return None
+        x, y = element.center
+        roles = {profile.role_of(element)} | {
+            profile.role_of(e) for e in self.screen.elements
+            if e.bounds[0] <= x < e.bounds[2] and e.bounds[1] <= y < e.bounds[3]}
+        return next((r for r in self._ACTING if r in roles), profile.role_of(element))
+
     def _compose_text(self) -> str:
         return next((e.text for e in self.screen.elements if e.editable and e.text), "")
 
@@ -308,7 +320,7 @@ class ProfileGuard(Guard):
                 extra = Decision(Verdict.ASK_HUMAN, "Screen has not been learned yet", "ASI02",
                                  "unprofiled_screen", ["unprofiled_screen"])
             else:
-                extra = self._by_role(action, profile.role_of(self._element(action)))
+                extra = self._by_role(action, self._role_at(profile, self._element(action)))
         if extra is None or _STRICTNESS[extra.verdict] <= _STRICTNESS[decision.verdict]:
             return decision
         write_decision({"event": "profile_check", "model": self.model, "action": action.get("type"),

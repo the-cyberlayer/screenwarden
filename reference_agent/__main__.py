@@ -87,8 +87,14 @@ def run(args: argparse.Namespace) -> int:
     guard = None
     if args.guard == "on":
         from screenwarden import Guard
-        guard = Guard(args.goal, policy=policy, log_path=args.log, model=llm.model)
-    print(f"Goal: {args.goal}\nGuard: {args.guard}")
+        if args.learn:  # Claude labels screens it has not seen; rules still decide
+            from screenwarden.profiler import ClaudeProfiler, ProfileGuard
+            guard = ProfileGuard(args.goal, policy=policy, log_path=args.log, model=llm.model,
+                                 profiler=ClaudeProfiler())
+        else:
+            guard = Guard(args.goal, policy=policy, log_path=args.log, model=llm.model)
+    print(f"Goal: {args.goal}\nGuard: {args.guard}"
+          + (" + screen learning" if guard is not None and args.learn else ""))
 
     history: list[str] = []
     blocked_in_a_row = 0
@@ -156,6 +162,8 @@ def main() -> int:
     parser.add_argument("--max-blocks", type=int, default=3)
     parser.add_argument("--settle", type=float, default=2.0, help="seconds to wait after acting")
     parser.add_argument("--log", help="decision log path")
+    parser.add_argument("--learn", action="store_true",
+                        help="with --guard on, label unknown screens with Claude")
     return run(parser.parse_args())
 
 

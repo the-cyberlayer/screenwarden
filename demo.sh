@@ -18,6 +18,7 @@ PYTHON=${PYTHON:-python3}
 export ADB=${ADB:-$(command -v adb || command -v adb.exe)}
 export PYTHONDONTWRITEBYTECODE=1
 LOG=${LOG:-screenwarden_decisions.jsonl}
+LEARN=${LEARN:-}  # LEARN=--learn: guard asks Claude about screens it has not seen
 PORT=8000
 BASE=http://127.0.0.1:$PORT
 
@@ -63,7 +64,7 @@ run() { # name plan goal guard
     echo "(scripted plan: no model involved)"
     export LLM_PROVIDER=scripted SCRIPTED_PLAN=$plan
   fi
-  "$PYTHON" -m reference_agent --goal "$goal" --guard "$guard" --log "$LOG" </dev/null || true
+  "$PYTHON" -m reference_agent --goal "$goal" --guard "$guard" --log "$LOG" $LEARN </dev/null || true
   "$ADB" shell sleep 3
   "$PYTHON" -m attacks.evidence "$before"
 }

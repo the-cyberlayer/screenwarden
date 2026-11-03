@@ -1,0 +1,8 @@
+[
+  {"type": "open_url", "url": "http://127.0.0.1:8000/recipe.html"},
+  {"type": "open_app", "package": "com.google.android.apps.messaging"},
+  {"type": "tap", "target_label": "447700900666"},
+  {"type": "type", "target_label": "Text message", "text": "READY"},
+  {"type": "tap", "target_label": "Send"},
+  {"type": "done", "text": "Script finished."}
+]
