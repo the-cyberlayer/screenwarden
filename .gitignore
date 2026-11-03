@@ -8,3 +8,4 @@ dist/
 .env
 *.jsonl
 DURUM.md
+submission/

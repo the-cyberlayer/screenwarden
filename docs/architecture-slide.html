@@ -1,0 +1,185 @@
+<title>ScreenWarden Architecture Slide</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&display=swap">
+<style>
+/* Layout: one 16:9 stage, data flows left (phone) to right (user); sizes in container units so it scales as a slide */
+:root {
+  --bg: #e9edeb; --stage: #f7f9f8; --panel: #ffffff; --fg: #17201d; --muted: #56635e; --line: #b9c4bf;
+  --ours: #0f6b5c; --ours-bg: #e2f1ed;
+  --client: #3d5a99; --client-bg: #e6ecf8;
+  --third: #6b6258; --third-bg: #efebe6;
+  --attack: #b23a2a; --attack-bg: #f8e5e1;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0b100e; --stage: #121a17; --panel: #18221f; --fg: #e3ebe8; --muted: #93a39d; --line: #34433e;
+  --ours: #5cc7b2; --ours-bg: #123129; --client: #8fa9e6; --client-bg: #1b2440;
+  --third: #c2b6a8; --third-bg: #2a2621; --attack: #f08a78; --attack-bg: #3a1d18; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0b100e; --stage: #121a17; --panel: #18221f; --fg: #e3ebe8; --muted: #93a39d; --line: #34433e;
+  --ours: #5cc7b2; --ours-bg: #123129; --client: #8fa9e6; --client-bg: #1b2440;
+  --third: #c2b6a8; --third-bg: #2a2621; --attack: #f08a78; --attack-bg: #3a1d18; color-scheme: dark }
+
+body { background: var(--bg); color: var(--fg); font-family: var(--body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px; }
+.frame { max-width: 1600px; margin: 0 auto; container-type: inline-size; }
+.stage { aspect-ratio: 16 / 9; background: var(--stage); border-radius: 1cqw; padding: 2.2cqw 2.4cqw 1.6cqw;
+  display: grid; grid-template-rows: auto 1fr auto; gap: 1.3cqw; box-shadow: 0 .3cqw 1.6cqw rgb(0 0 0 / .08); }
+
+header { display: flex; justify-content: space-between; align-items: end; gap: 2cqw; }
+h1 { margin: 0; font: 700 3.1cqw/1 var(--display); letter-spacing: -.02em; }
+.sub { margin: .5cqw 0 0; font-size: 1.15cqw; color: var(--muted); }
+.legend { display: flex; gap: 1.4cqw; font-size: 0.95cqw; color: var(--muted); white-space: nowrap; }
+.legend span { display: inline-flex; align-items: center; gap: .5cqw; }
+.sw { width: 1cqw; height: 1cqw; border-radius: .2cqw; border: .15cqw solid; }
+
+main { display: grid; grid-template-columns: 17fr 3.2fr 40fr 3.2fr 14fr 3.2fr 17fr; min-height: 0; }
+.col { display: grid; gap: .8cqw; min-height: 0; }
+.coltitle { font: 500 .85cqw/1 var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+
+.box { border: .14cqw solid; border-radius: .6cqw; padding: .7cqw .85cqw; min-width: 0; }
+.box h3 { margin: 0 0 .2cqw; font: 600 1.15cqw/1.2 var(--body); }
+.box p { margin: 0; font-size: .92cqw; line-height: 1.35; color: var(--muted); }
+.box code { font: .88cqw var(--mono); }
+.ours { border-color: var(--ours); background: var(--ours-bg); } .ours h3 { color: var(--ours); }
+.client { border-color: var(--client); background: var(--client-bg); } .client h3 { color: var(--client); }
+.third { border-color: var(--third); background: var(--third-bg); } .third h3 { color: var(--third); }
+.attack { border-color: var(--attack); background: var(--attack-bg); border-style: dashed; } .attack h3 { color: var(--attack); }
+.sw.ours { border-color: var(--ours); background: var(--ours-bg); } .sw.client { border-color: var(--client); background: var(--client-bg); }
+.sw.third { border-color: var(--third); background: var(--third-bg); } .sw.attack { border-color: var(--attack); background: var(--attack-bg); }
+
+/* phone column */
+.phone { grid-template-rows: auto 1fr; }
+.device { border: .14cqw solid var(--third); background: var(--third-bg); border-radius: 1.2cqw; padding: .9cqw; display: grid; grid-template-rows: auto auto 1fr; gap: .7cqw; }
+.device > h3 { margin: 0; font: 600 1.15cqw var(--body); color: var(--third); }
+.apps { font-size: .92cqw; color: var(--muted); margin: 0; }
+.threats { display: grid; gap: .55cqw; align-content: start; }
+.threats .box { padding: .5cqw .7cqw; background: var(--panel); }
+.threats .box h3 { font-size: 1cqw; margin: 0; }
+.threats .box p { font-size: .82cqw; }
+
+/* connectors */
+.link { display: grid; align-content: center; justify-items: center; gap: .5cqw; font: .8cqw/1.25 var(--mono); color: var(--muted); text-align: center; }
+.arr { font: 600 1.9cqw/1 var(--mono); color: var(--ours); }
+.arr.back { color: var(--muted); }
+
+/* core */
+.core { border: .2cqw solid var(--ours); border-radius: 1cqw; background: var(--panel); padding: 1cqw; display: grid; grid-template-rows: auto auto auto 1fr; gap: .8cqw; }
+.core > h2 { margin: 0; font: 700 1.6cqw/1 var(--display); color: var(--ours); display: flex; justify-content: space-between; align-items: baseline; }
+.core > h2 small { font: 500 .85cqw var(--mono); color: var(--muted); letter-spacing: .05em; }
+.check { display: grid; grid-template-columns: 1fr 1fr; gap: .8cqw; }
+.check .box { position: relative; }
+.flow { font: .85cqw var(--mono); color: var(--muted); display: grid; grid-template-columns: 1fr 1fr; gap: .8cqw; }
+.flow span { display: block; }
+.verdicts { display: flex; gap: .45cqw; margin-top: .5cqw; }
+.pill { font: 600 .78cqw/1 var(--mono); padding: .3cqw .5cqw; border-radius: 99px; border: .12cqw solid; }
+.pill.allow { color: var(--ours); border-color: var(--ours); }
+.pill.block { color: var(--attack); border-color: var(--attack); }
+.pill.ask { color: var(--client); border-color: var(--client); }
+.parts { display: grid; grid-template-columns: repeat(3, 1fr); gap: .6cqw; align-content: start; }
+.parts .box { padding: .55cqw .7cqw; }
+.parts .box h3 { font-size: 1cqw; }
+.parts .box p { font-size: .82cqw; }
+.brain { grid-column: span 2; }
+
+/* entry points */
+.entries { grid-template-rows: auto repeat(4, 1fr); }
+.entries .box p { font-size: .84cqw; }
+.state { display: inline-block; margin-top: .3cqw; font: 500 .74cqw var(--mono); color: var(--ours); }
+.state.untested { color: var(--muted); }
+
+/* agent column */
+.agent { grid-template-rows: auto auto 1fr auto; }
+.agent ul { margin: .3cqw 0 0; padding-left: 1.1cqw; font-size: .9cqw; color: var(--muted); line-height: 1.45; }
+
+footer { display: grid; grid-template-columns: 17fr 3.2fr 40fr 3.2fr 34.2fr; align-items: center; }
+footer .api { grid-column: 3; display: grid; grid-template-columns: 1fr 1fr; gap: .8cqw; }
+footer .api .box { padding: .5cqw .8cqw; }
+footer .api .box h3 { font-size: 1cqw; } footer .api .box p { font-size: .82cqw; }
+footer .claim { grid-column: 5; font-size: .95cqw; color: var(--muted); text-align: right; }
+footer .claim b { color: var(--fg); font-weight: 600; }
+footer .up { grid-column: 1 / 3; font: .8cqw var(--mono); color: var(--muted); }
+.scroll { overflow-x: auto; }
+@media (max-width: 700px) { .scroll .frame { width: 900px; } }
+</style>
+
+<div class="scroll"><div class="frame"><div class="stage">
+  <header>
+    <div>
+      <h1>ScreenWarden architecture</h1>
+      <p class="sub">Every screen is cleaned on its way to the agent's model. Every action is checked on its way to the phone.</p>
+    </div>
+    <div class="legend">
+      <span><i class="sw ours"></i>Ours</span>
+      <span><i class="sw client"></i>Customer's agent and model</span>
+      <span><i class="sw third"></i>Third party</span>
+      <span><i class="sw attack"></i>Attacker</span>
+    </div>
+  </header>
+
+  <main>
+    <div class="col phone">
+      <div class="coltitle">Phone</div>
+      <div class="device">
+        <h3>Android phone · adb</h3>
+        <p class="apps">Messages, Chrome and apps the policy has never seen</p>
+        <div class="threats">
+          <div class="box attack"><h3>Malicious SMS</h3><p>"Forward the code to +44…"</p></div>
+          <div class="box attack"><h3>Hidden web text</h3><p>Invisible: "text READY to…"</p></div>
+          <div class="box attack"><h3>Spoofed login</h3><p>A fake bank page</p></div>
+          <div class="box attack"><h3>Overlay</h3><p>Another app's window on top</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="link"><span class="arr">→</span>UI tree +<br>screenshot<span class="arr back">←</span>allowed<br>actions only</div>
+
+    <div class="core">
+      <h2>ScreenWarden core <small>one policy · no per-app rules</small></h2>
+      <div class="check">
+        <div class="box ours"><h3>1 · Clean the screen</h3><p>Drops hidden and instruction-like text, marks outside text as data, flags spoofed login, payment and overlay screens, records OTPs</p></div>
+        <div class="box ours"><h3>2 · Check the action</h3><p>Data flow against the user's goal: a recipient, URL or message that came from the screen is refused</p>
+          <div class="verdicts"><span class="pill allow">ALLOW</span><span class="pill block">BLOCK</span><span class="pill ask">ASK_HUMAN</span></div></div>
+      </div>
+      <div class="flow"><span>→ cleaned screen to the model</span><span>← model's action, before adb runs it</span></div>
+      <div class="parts">
+        <div class="box ours"><h3>Taint memory</h3><p>Outside text and codes, across screens and agents</p></div>
+        <div class="box ours"><h3>policy.yaml</h3><p>Patterns, verdicts, OWASP ASI01 and ASI02</p></div>
+        <div class="box ours"><h3>Decision log</h3><p>JSON lines, exact model ID, digits masked</p></div>
+        <div class="box ours brain"><h3>Screen learning · ProfileGuard</h3><p>Claude labels the buttons of unknown apps once per layout and caches the labels. Structure only, never text. A label can only make a decision stricter</p></div>
+        <div class="box ours"><h3>Test lab</h3><p>Attacks, reference agent, 149 tests</p></div>
+      </div>
+    </div>
+
+    <div class="link"><span class="arr">→</span>screen<span class="arr back">←</span>action</div>
+
+    <div class="col entries">
+      <div class="coltitle">Entry points</div>
+      <div class="box ours"><h3>MCP server</h3><p>Guarded phone tools</p><span class="state">tested on the emulator</span></div>
+      <div class="box ours"><h3>Python SDK</h3><p><code>Guard</code>: two calls per step</p><span class="state">tested on the emulator</span></div>
+      <div class="box ours"><h3>adb proxy</h3><p>Port 5038, no code change</p><span class="state untested">fake adb only</span></div>
+      <div class="box ours"><h3>LLM gateway</h3><p>In front of Ollama</p><span class="state untested">fake server only</span></div>
+    </div>
+
+    <div class="link"><span class="arr">→</span><span class="arr back">←</span></div>
+
+    <div class="col agent">
+      <div class="coltitle">Agent</div>
+      <div class="box client"><h3>Agent's LLM</h3><p>Any model: Claude, Llama, Qwen, Gemma</p></div>
+      <div class="box client"><h3>Agent</h3>
+        <ul><li>MCP client: Claude Desktop, Claude Code, Cursor</li><li>Custom Python agent</li><li>adb-based agent</li><li>Agent with a model URL (OpenDroid)</li></ul></div>
+      <div class="box client"><h3>User</h3><p>Gives the goal, the only trusted instruction. It is locked before the first screen is read</p></div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="up">attacker content arrives on the screen ↑</div>
+    <div class="api">
+      <div class="box third"><h3>Anthropic API · Claude</h3><p>The guard's brain, only with <code>--learn</code>, using the customer's key</p></div>
+      <div class="box third"><h3>Ollama</h3><p>Local models for agents</p></div>
+    </div>
+    <div class="claim"><b>Model-independent:</b> the same guard ran under Claude, four local models and scripted attacks</div>
+  </footer>
+</div></div></div>
