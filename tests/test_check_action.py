@@ -201,6 +201,13 @@ def test_spoofed_and_overlay_flags(tmp_path):
     screen = SanitizedScreen(foreground=CHROME, flags={"spoofed_login"},
                              elements=[Element(1, text="Sign in")])
     assert judge({"type": "tap", "target": 1}, tmp_path, screen=screen).rule == "spoofed_screen"
+    assert judge({"type": "tap", "target": "1"}, tmp_path, screen=screen).rule == "spoofed_screen"
+    assert judge({"type": "type", "target": "1", "text": "x"}, tmp_path,
+                 screen=screen).rule == "spoofed_screen"
+    for leave in ({"type": "back"}, {"type": "home"},
+                  {"type": "open_url", "url": "http://127.0.0.1:8000/recipe.html"}):
+        d = judge(leave, tmp_path, screen=screen, goal="Open 127.0.0.1:8000/recipe.html")
+        assert d.verdict is Verdict.ALLOW
     screen = SanitizedScreen(foreground=CHROME, flags={"overlay"},
                              elements=[Element(1, text="OK")])
     d = judge({"type": "tap", "target": 1}, tmp_path, screen=screen)

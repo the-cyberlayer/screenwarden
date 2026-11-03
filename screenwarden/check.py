@@ -18,6 +18,7 @@ from .types import Decision, Element, SanitizedScreen, Verdict
 Hit = tuple[str, str]
 _STRICTNESS = {Verdict.BLOCK: 2, Verdict.ASK_HUMAN: 1, Verdict.ALLOW: 0}
 _MIN_PHONE_MATCH = 9  # compare the last N digits to ignore country-code format
+_LEAVES_SCREEN = {"open_url", "open_app", "back", "home"}  # never trap an agent on a fake page
 
 
 def _digits(value: str) -> str:
@@ -73,6 +74,8 @@ class _Ctx:
         target = self.action.get("target")
         if isinstance(target, Element):
             return target
+        if isinstance(target, str) and target.strip().isdigit():
+            target = int(target)  # models often quote ids; the agent acts on them all the same
         if isinstance(target, int):
             return self.screen.element(target)
         return None
@@ -213,7 +216,7 @@ def _rules(ctx: _Ctx) -> Iterator[Hit]:
         if not ctx.in_messaging and ctx.has_code(ctx.text):
             yield "otp_entry", ""
 
-    if "spoofed_login" in flags:
+    if "spoofed_login" in flags and ctx.kind not in _LEAVES_SCREEN:
         yield "spoofed_screen", ctx.screen.url
 
     label = ctx.target.label if ctx.target else ""

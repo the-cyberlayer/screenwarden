@@ -8,7 +8,7 @@ import sys
 import time
 
 from . import ui
-from .adb import Device
+from .adb import AdbError, Device
 from .llm import get_llm
 from screenwarden.decision_log import write_decision
 from screenwarden.policy import load_policy
@@ -36,7 +36,7 @@ def describe(action: dict) -> str:
 
 def execute(device: Device, action: dict, nodes: list) -> str:
     kind = action.get("type")
-    node = next((n for n in nodes if n.id == action.get("target")), None)
+    node = next((n for n in nodes if str(n.id) == str(action.get("target")).strip()), None)
     if kind in ("tap", "type") and node is None:
         return f"error: no element {action.get('target')}"
     if kind == "tap":
@@ -47,9 +47,12 @@ def execute(device: Device, action: dict, nodes: list) -> str:
         device.type_text(action.get("text", ""))
     elif kind == "send_sms":
         device.compose_sms(action.get("recipient", ""), action.get("text", ""))
-        time.sleep(3)
-        send = next((n for n in ui.parse(device.dump_ui()) if n.label.lower().startswith("send")),
-                    None)
+        for _ in range(5):  # compose can take a while to open on a busy machine
+            time.sleep(3)
+            send = next((n for n in ui.parse(device.dump_ui())
+                         if n.label.lower().startswith("send")), None)
+            if send:
+                break
         if send is None:
             return "error: send button not found"
         device.tap(*send.center)
@@ -132,7 +135,10 @@ def run(args: argparse.Namespace) -> int:
         if action.get("type") == "done":
             print(f"Done: {action.get('text', '')}")
             return 0
-        result = execute(device, action, nodes)
+        try:
+            result = execute(device, action, nodes)
+        except AdbError as exc:  # a malformed action fails like any other, it does not end the run
+            result = f"error: {exc}"
         if result != "ok":
             print(f"    {result}")
         history.append(f"{describe(action)} -> {result}")

@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import time
 import urllib.request
 
 
@@ -49,8 +50,15 @@ class Ollama:
         }).encode()
         request = urllib.request.Request(f"{self.url}/api/chat", body,
                                          {"Content-Type": "application/json"})
-        with urllib.request.urlopen(request, timeout=300) as reply:
-            answer = json.load(reply)
+        for attempt in range(3):  # a loaded local server can time out or answer 500
+            try:
+                with urllib.request.urlopen(request, timeout=600) as reply:
+                    answer = json.load(reply)
+                break
+            except (OSError, TimeoutError):
+                if attempt == 2:
+                    raise
+                time.sleep(30)
         self.model = answer["model"]
         return parse_action(answer["message"]["content"])
 

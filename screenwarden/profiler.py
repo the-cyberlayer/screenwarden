@@ -266,6 +266,8 @@ class ProfileGuard(Guard):
 
     def _element(self, action: dict) -> Element | None:
         target = action.get("target")
+        if isinstance(target, str) and target.strip().isdigit():
+            target = int(target)
         return target if isinstance(target, Element) else self.screen.element(target) \
             if isinstance(target, int) else None
 

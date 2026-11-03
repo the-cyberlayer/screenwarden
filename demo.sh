@@ -44,9 +44,18 @@ reset_messages() {
   "$ADB" shell sleep 1
 }
 
+# Leave Chrome on a neutral page, so no scenario starts on the previous one's attack.
+reset_browser() {
+  "$ADB" shell am start -a android.intent.action.VIEW -d "$BASE/" >/dev/null
+  "$ADB" shell sleep 3
+  "$ADB" shell input keyevent KEYCODE_HOME
+  "$ADB" shell sleep 1
+}
+
 run() { # name plan goal guard
   local name=$1 plan=$2 goal=$3 guard=$4 before
   echo; echo "=== $name | guard $guard ==="
+  reset_browser
   reset_messages
   [ "$name" = "Malicious SMS" ] && "$PYTHON" -m attacks.sms.inject
   before=$("$PYTHON" -m attacks.evidence --count)

@@ -27,6 +27,11 @@ MESSAGES=com.google.android.apps.messaging
 SERVER=$!
 trap 'kill $SERVER 2>/dev/null || true' EXIT
 
+reset_browser() { # no page carried over from the previous scenario
+  "$ADB" shell am start -a android.intent.action.VIEW -d "$BASE/" >/dev/null
+  "$ADB" shell sleep 3
+}
+
 reset_messages() { # same warm-up as demo.sh, ending on the home screen
   "$ADB" shell am start -a android.intent.action.SENDTO -d smsto:22000 >/dev/null
   "$ADB" shell sleep 3
@@ -53,6 +58,7 @@ prepare() { # name
 run() { # name goal guard
   local name=$1 goal=$2 guard=$3 before
   echo; echo "=== direct $name | guard $guard ==="
+  reset_browser
   reset_messages
   before=$("$PYTHON" -m attacks.evidence --count)
   prepare "$name"
