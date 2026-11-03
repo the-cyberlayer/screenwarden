@@ -1,0 +1,124 @@
+<title>ScreenWarden OWASP Coverage</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&display=swap">
+<style>
+/* Layout: one 16:9 stage; a ten-row coverage table, rows grouped Covered > Partial > Not covered, evidence in its own column */
+:root {
+  --bg: #e9edeb; --stage: #f7f9f8; --panel: #ffffff; --fg: #17201d; --muted: #56635e; --line: #d3dbd7;
+  --ours: #0f6b5c; --ours-bg: #e2f1ed;
+  --part: #3d5a99; --part-bg: #e6ecf8;
+  --none: #6b6258; --none-bg: #efebe6;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0b100e; --stage: #121a17; --panel: #18221f; --fg: #e3ebe8; --muted: #93a39d; --line: #2c3934;
+  --ours: #5cc7b2; --ours-bg: #123129; --part: #8fa9e6; --part-bg: #1b2440; --none: #c2b6a8; --none-bg: #2a2621;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0b100e; --stage: #121a17; --panel: #18221f; --fg: #e3ebe8; --muted: #93a39d; --line: #2c3934;
+  --ours: #5cc7b2; --ours-bg: #123129; --part: #8fa9e6; --part-bg: #1b2440; --none: #c2b6a8; --none-bg: #2a2621;
+  color-scheme: dark }
+
+body { background: var(--bg); color: var(--fg); font-family: var(--body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px; }
+.frame { max-width: 1600px; margin: 0 auto; container-type: inline-size; }
+.stage { aspect-ratio: 16 / 9; background: var(--stage); border-radius: 1cqw; padding: 2.2cqw 2.6cqw 1.6cqw;
+  display: grid; grid-template-rows: auto 1fr auto; gap: 1.2cqw; box-shadow: 0 .3cqw 1.6cqw rgb(0 0 0 / .08); }
+
+header { display: flex; justify-content: space-between; align-items: end; gap: 2cqw; }
+h1 { margin: 0; font: 700 2.9cqw/1.05 var(--display); letter-spacing: -.02em; }
+header p { margin: .5cqw 0 0; font-size: 1.2cqw; color: var(--muted); }
+.tally { display: flex; gap: .8cqw; flex: none; }
+.tally span { padding: .45cqw .9cqw; border-radius: 99cqw; font: 600 1cqw/1 var(--body); white-space: nowrap; }
+
+.wrap { min-height: 0; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; background: var(--panel); border-radius: .7cqw; overflow: hidden;
+  font-size: .92cqw; line-height: 1.3; }
+th { text-align: left; font: 500 .8cqw/1 var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--muted);
+  padding: .75cqw .9cqw; border-bottom: .12cqw solid var(--line); }
+td { padding: .5cqw .9cqw; border-bottom: .08cqw solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+td.risk { white-space: nowrap; }
+td.risk b { font: 600 .95cqw var(--mono); margin-right: .5cqw; }
+td.does { color: var(--fg); } td.not { color: var(--muted); }
+td.ev { font: .82cqw/1.35 var(--mono); color: var(--fg); }
+.lvl { display: inline-block; padding: .25cqw .6cqw; border-radius: 99cqw; font: 600 .8cqw/1 var(--body); white-space: nowrap; }
+.covered { color: var(--ours); background: var(--ours-bg); }
+.partial { color: var(--part); background: var(--part-bg); }
+.none { color: var(--none); background: var(--none-bg); }
+tr.c td { background: color-mix(in srgb, var(--ours-bg) 45%, transparent); }
+
+footer { font-size: 1cqw; color: var(--muted); display: flex; justify-content: space-between; gap: 2cqw; }
+footer strong { color: var(--fg); font-weight: 600; }
+
+@media (max-width: 700px) {
+  .stage { aspect-ratio: auto; }
+  header { flex-direction: column; align-items: start; }
+  h1 { font-size: 6.5cqw; } header p, footer { font-size: 3.2cqw; } .tally span { font-size: 2.8cqw; }
+  table { font-size: 2.8cqw; min-width: 900px; } th, .lvl, td.ev, td.risk b { font-size: 2.4cqw; }
+  footer { flex-direction: column; }
+}
+</style>
+
+<div class="frame"><div class="stage">
+  <header>
+    <div>
+      <h1>OWASP Agentic Top 10: what ScreenWarden covers</h1>
+      <p>Two risks covered end to end, seven partly, one out of scope. Evidence from runs on an Android 15 emulator.</p>
+    </div>
+    <div class="tally"><span class="covered">2 covered</span><span class="partial">7 partial</span><span class="none">1 not covered</span></div>
+  </header>
+
+  <div class="wrap"><table>
+    <thead><tr><th>Risk</th><th>Level</th><th>What ScreenWarden does</th><th>What it does not do</th><th>Evidence</th></tr></thead>
+    <tbody>
+      <tr class="c"><td class="risk"><b>ASI01</b>Agent Goal Hijack</td><td><span class="lvl covered">Covered</span></td>
+        <td class="does">Removes hidden and planted instructions; blocks any recipient, link or text that came from the screen; locks the goal before the first screen</td>
+        <td class="not">Visible, reworded instructions can reach the model (the action check still applies)</td>
+        <td class="ev">35 of 43 hidden instructions removed; 21 of 21 hijacked SMS and link actions blocked</td></tr>
+      <tr class="c"><td class="risk"><b>ASI02</b>Tool Misuse</td><td><span class="lvl covered">Covered</span></td>
+        <td class="does">OTP, unknown recipient, payment, install and settings rules; Claude labels controls in unknown apps</td>
+        <td class="not">An action with no parameters to check, such as reading data aloud</td>
+        <td class="ev">OTP forward blocked (SDK and MCP); unknown app send blocked</td></tr>
+      <tr><td class="risk"><b>ASI03</b>Identity &amp; Privilege</td><td><span class="lvl partial">Partial</span></td>
+        <td class="does">Stops the agent typing passwords and granting itself permissions in Settings</td>
+        <td class="not">Does not manage the agent's own identity or account permissions</td>
+        <td class="ev">10 of 10 credential and settings attacks blocked</td></tr>
+      <tr><td class="risk"><b>ASI05</b>Code Execution</td><td><span class="lvl partial">Partial</span></td>
+        <td class="does">Blocks app installs the user did not ask for</td>
+        <td class="not">Does not inspect code already running on the phone</td>
+        <td class="ev">5 of 5 install attacks blocked</td></tr>
+      <tr><td class="risk"><b>ASI06</b>Memory Poisoning</td><td><span class="lvl partial">Partial</span></td>
+        <td class="does">Remembers what came from the screen across the session, so a later screen cannot use it</td>
+        <td class="not">Does not inspect the agent's long-term memory</td>
+        <td class="ev">5 of 5 "remember for every task" attacks blocked on a later screen</td></tr>
+      <tr><td class="risk"><b>ASI07</b>Inter-Agent Comms</td><td><span class="lvl partial">Partial</span></td>
+        <td class="does">Agents on one phone share what each has seen, and each is judged against the user's goal</td>
+        <td class="not">Does not inspect messages agents send each other</td>
+        <td class="ev">SharedSession tests</td></tr>
+      <tr><td class="risk"><b>ASI08</b>Cascading Failures</td><td><span class="lvl partial">Partial</span></td>
+        <td class="does">Each blocked step stops there; the reference agent halts after repeated blocks</td>
+        <td class="not">Halting is in the reference agent, not in the guard</td>
+        <td class="ev">--max-blocks in the reference agent</td></tr>
+      <tr><td class="risk"><b>ASI09</b>Human Trust</td><td><span class="lvl partial">Partial</span></td>
+        <td class="does">Removes instructions that tell the agent what to say to the user</td>
+        <td class="not">Does not check the agent's own words to the user</td>
+        <td class="ev">4 of 5 "tell the user to call the bank" removed</td></tr>
+      <tr><td class="risk"><b>ASI10</b>Rogue Agents</td><td><span class="lvl partial">Partial</span></td>
+        <td class="does">As MCP server or adb filter, the agent has no way round the guard</td>
+        <td class="not">The SDK alone can be skipped by the agent's own code</td>
+        <td class="ev">MCP refusals live on emulator</td></tr>
+      <tr><td class="risk"><b>ASI04</b>Supply Chain</td><td><span class="lvl none">Not covered</span></td>
+        <td class="does">Out of scope: ScreenWarden guards what the agent sees and does on the phone</td>
+        <td class="not">Models, tools and packages the agent is built from</td>
+        <td class="ev">-</td></tr>
+    </tbody>
+  </table></div>
+
+  <footer>
+    <span><strong>Matrix:</strong> 52 pages in Chrome, 16 hiding techniques, 7 attacker goals, 6 normal pages. 41 of 41 hijacked actions stopped.</span>
+    <span>Raw runs: results/matrix/</span>
+  </footer>
+</div></div>
