@@ -33,8 +33,18 @@ body { background: var(--bg); color: var(--fg); font-family: var(--body);
 header h1 { margin: 0; font: 700 3.2cqw/1.05 var(--display); letter-spacing: -.02em; text-wrap: balance; }
 header p { margin: .6cqw 0 0; font-size: 1.3cqw; color: var(--muted); }
 
+.body { display: grid; grid-template-columns: 1fr 15cqw; gap: 1.2cqw; min-height: 0; }
 .lanes { display: grid; grid-template-rows: repeat(4, 1fr); gap: 1cqw; min-height: 0; }
-.lane { display: grid; grid-template-columns: 19fr 58fr 19fr; gap: 1.4cqw; align-items: center;
+.engine { border: .22cqw solid var(--ours); border-radius: .8cqw; background: var(--ours-bg); padding: 1.2cqw;
+  display: grid; align-content: center; gap: .9cqw; position: relative; }
+.engine h2 { margin: 0; font: 700 1.7cqw/1.1 var(--display); color: var(--ours); }
+.engine p { margin: 0; font-size: .95cqw; line-height: 1.4; color: var(--fg); }
+.engine ul { margin: 0; padding-left: 1.1cqw; font-size: .9cqw; line-height: 1.45; color: var(--muted); }
+.engine code { font: .88cqw var(--mono); }
+.uses { position: absolute; left: -1.25cqw; top: 0; bottom: 0; display: grid; grid-template-rows: repeat(4, 1fr); gap: 1cqw; }
+.uses span { align-self: center; font: 600 1.3cqw/1 var(--mono); color: var(--ours); background: var(--stage); }
+.where { margin: .3cqw 0 0; font-size: .9cqw; color: var(--fg); }
+.lane { display: grid; grid-template-columns: 22fr 52fr 16fr; gap: 1.4cqw; align-items: center;
   background: var(--panel); border: .12cqw solid var(--line); border-radius: .8cqw; padding: .9cqw 1.2cqw; }
 .lane.builtin { border-style: dashed; }
 
@@ -75,6 +85,8 @@ footer code { font: .95cqw var(--mono); }
   header h1 { font-size: 7cqw; } header p, .change, .status, footer { font-size: 3.2cqw; }
   .name h2 { font-size: 4.5cqw; } .node b { font-size: 3.2cqw; } .node small, .kind, .chip { font-size: 2.6cqw; }
   footer { flex-direction: column; align-items: start; }
+  .body { grid-template-columns: 1fr; } .uses { display: none; }
+  .engine h2 { font-size: 5cqw; } .engine p, .engine ul, .where { font-size: 3.2cqw; }
 }
 </style>
 
@@ -84,9 +96,11 @@ footer code { font: .95cqw var(--mono); }
     <p>Three outside filters the agent cannot skip, and one built-in filter for agents you write yourself.</p>
   </header>
 
+  <div class="body">
   <section class="lanes">
     <div class="lane">
       <div class="name"><h2>MCP server</h2><span class="kind">Outside filter</span>
+        <p class="where">Between agent and phone, as the agent's tools</p>
         <p class="change">Agent change: none</p></div>
       <div class="path">
         <div class="node client"><b>MCP client</b><small>Claude Desktop, Claude Code, Cursor</small></div>
@@ -102,7 +116,8 @@ footer code { font: .95cqw var(--mono); }
 
     <div class="lane">
       <div class="name"><h2>adb proxy</h2><span class="kind">Outside filter</span>
-        <p class="change">Agent change: point the adb port at ScreenWarden</p></div>
+        <p class="where">Between agent and phone, on the adb line</p>
+        <p class="change">Agent change: the adb port</p></div>
       <div class="path">
         <div class="node client"><b>Existing agent</b><small>already drives adb</small></div>
         <span class="arr">→</span>
@@ -117,6 +132,7 @@ footer code { font: .95cqw var(--mono); }
 
     <div class="lane">
       <div class="name"><h2>LLM gateway</h2><span class="kind">Outside filter</span>
+        <p class="where">Between agent and its model</p>
         <p class="change">Agent change: the model URL</p></div>
       <div class="path">
         <div class="node client"><b>Agent</b><small>any Ollama-API agent</small></div>
@@ -130,6 +146,7 @@ footer code { font: .95cqw var(--mono); }
 
     <div class="lane builtin">
       <div class="name"><h2>Python SDK</h2><span class="kind">Built-in filter</span>
+        <p class="where">Inside the agent's own code</p>
         <p class="change">Agent change: two calls per step</p></div>
       <div class="path">
         <div class="node client agent-with"><b>Your agent</b>
@@ -143,8 +160,22 @@ footer code { font: .95cqw var(--mono); }
     </div>
   </section>
 
+  <aside class="engine">
+    <div class="uses" aria-hidden="true"><span>←</span><span>←</span><span>←</span><span>←</span></div>
+    <h2>One engine: Guard</h2>
+    <p>The SDK's <code>Guard</code> is the engine. The other three wrap it, so all four make the same decision on the same screen.</p>
+    <ul>
+      <li>Screen cleaning</li>
+      <li>Action check</li>
+      <li>One <code>policy.yaml</code></li>
+      <li>One decision log</li>
+      <li>Optional: Claude learns unknown apps</li>
+    </ul>
+  </aside>
+  </div>
+
   <footer>
-    <span>All four run the <strong>same guard</strong>: screen cleaning, action check, one <code>policy.yaml</code>, one JSONL decision log.</span>
+    <span>The agent has to reach the phone or its model somehow. <strong>Whichever path it takes, the same guard is on it.</strong></span>
     <span>One server per phone: <code>--device emulator-5556</code></span>
   </footer>
 </div></div>
