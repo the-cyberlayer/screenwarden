@@ -184,10 +184,18 @@ limits what a capable model can do. The same harness re-runs any model and actio
 
 ## OWASP Agentic Top 10 mapping
 
-| Risk | ScreenWarden controls |
-|---|---|
-| ASI01 Agent Goal Hijack | Hidden and instruction-like text removal, overlay and spoofed page detection, data-flow check on action parameters, goal locked before the first screen |
-| ASI02 Tool Misuse | OTP, credential, payment, install and settings rules, unknown recipient rule, learned roles for unknown apps, `ASK_HUMAN` for unknown actions |
+| Risk | Coverage | ScreenWarden controls |
+|---|---|---|
+| ASI01 Agent Goal Hijack | **Covered** | Hidden and instruction-like text removal, overlay and spoofed page detection, data-flow check on action parameters, goal locked before the first screen |
+| ASI02 Tool Misuse and Exploitation | **Covered** | OTP, credential, payment, install and settings rules, unknown recipient rule, learned roles for unknown apps, `ASK_HUMAN` for unknown actions |
+| ASI03 Identity and Privilege Abuse | Partial | Stops credential entry on spoofed pages and OTP leaving the device. Does not manage the agent's own permissions |
+| ASI05 Unexpected Code Execution | Partial | Blocks app installs. Does not inspect what the phone runs |
+| ASI06 Memory and Context Poisoning | Partial | Cleans instructions out of each screen and keeps taint across screens in a session. Does not inspect long-term agent memory |
+| ASI07 Insecure Inter-Agent Communication | Partial | `SharedSession` shares taint between agents on one phone and judges each against the user's goal. Does not inspect messages between agents |
+| ASI08 Cascading Failures | Partial | The reference agent stops after repeated blocks (`--max-blocks`). Not part of the guard itself |
+| ASI09 Human-Agent Trust Exploitation | Partial | Risky steps go back to the person (`ASK_HUMAN`). Does not check what the agent tells the user |
+| ASI10 Rogue Agents | Partial | Through the MCP server or adb proxy, the agent cannot skip the guard if it has no other route to the phone. The SDK alone can be skipped |
+| ASI04 Agentic Supply Chain Vulnerabilities | Not covered | |
 
 ## Limitations
 
