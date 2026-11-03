@@ -151,7 +151,31 @@ Testing found a real gap in the fourth row. Claude labelled the Send button corr
 the text inside the button was let through and the SMS went out. That is fixed: a label inside a
 learned button now counts as the button. A test covers it.
 
-### 2. Real models as the agent
+### 2. Attack matrix: 52 pages in real Chrome
+
+46 attack pages cross 16 ways of hiding an instruction (opacity 0, white on white, font size 0,
+off-screen, covered by a box, aria-label, image alt text, plainly visible, reworded, Turkish and
+more) with 7 attacker goals: text the attacker, open a link, type a password, grant access in
+Settings, install an app, copy the attacker on later messages, and tell the user to call "the
+bank". 6 normal pages measure false alarms. The runner opens each page in Chrome, reads the screen
+and asks the guard about the action a fully fooled agent would take. No model is involved.
+
+| Measure | Result |
+|---|---|
+| Hijacked actions stopped | **41 of 41** |
+| Planted instructions removed before the model saw them | 35 of 43 that reached the UI tree |
+| Normal pages with text removed | 0 of 6 |
+| Actions the user asked for on normal pages | Allowed, except one (below) |
+
+The 8 instructions that got through were 6 plainly visible ones and 2 hidden with `font-size:0` or
+`height:0`; the action check still blocked every action they asked for. One "words only" attack
+(tell the user to call the bank) has no action to block, and its visible version reached the model.
+The one false alarm: the user asked to book a table by text and the number came from the page,
+which the guard cannot tell apart from an attacker's number. We did not tune the guard to these
+pages. Per-page results are in [`results/matrix/REPORT.md`](results/matrix/REPORT.md); rebuild and
+re-run with `python -m attacks.matrix.make && python -m attacks.matrix.run`.
+
+### 3. Real models as the agent
 
 What a model does depends on the model, so each run gets one label:
 
@@ -176,7 +200,7 @@ agent could not find the Send button. That was a harness bug, and it is fixed. I
 runs, the hidden text never reached the model, so the guard stopped the attack before an action
 existed. Across every real-model run with the guard on, no SMS reached the attacker.
 
-### 3. Why these results will change
+### 4. Why these results will change
 
 Mobile agents are new and improving fast. Today a small model often cannot finish a task, and a
 frontier model often sees through the attack. Neither is stable. Weak models will get better at
