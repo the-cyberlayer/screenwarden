@@ -78,7 +78,8 @@ A refused action is never run. The client gets a tool error such as
 `ScreenWarden BLOCK [ASI02] unknown_recipient: Recipient is neither in the user's goal nor a known
 contact.` `ASK_HUMAN` is refused too, because a tool cannot tell whether a person answered. The
 client should ask the user to do that step themselves. Add `--goal "..."` to fix the goal at
-launch, and `--learn` to label unknown apps with Claude.
+launch, and `--learn` to label unknown apps with Claude. For several phones, run one server per
+phone with `--device <adb serial>`, for example `--device emulator-5556`.
 
 ### Python SDK
 
