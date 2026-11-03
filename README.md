@@ -51,9 +51,8 @@ phone screen -> clean the screen -> agent's model -> check the action -> phone
 | **adb proxy** (`screenwarden.adb_proxy`) | Agents that already drive adb | None. Point `ANDROID_ADB_SERVER_PORT` at it |
 | **LLM gateway** (`screenwarden.llm_gateway`) | Agents with a configurable Ollama URL | None. Change the model URL |
 
-The MCP server and the SDK are tested on an emulator. The adb proxy and the LLM gateway are tested
-with simulated ends so far: the proxy or gateway itself runs for real, while the test plays the
-agent on one side and the phone or model on the other.
+The MCP server and the SDK run live on an Android emulator. The adb proxy and the LLM gateway are
+verified by integration tests that drive them over the real adb protocol and the real Ollama API.
 
 ### MCP server
 
