@@ -268,3 +268,36 @@ def test_claude_profiler_sends_only_the_skeleton(policy):
 def test_claude_refusal_gives_no_profile(policy):
     client = Client("", stop="refusal")
     assert ClaudeProfiler("m", client)(APP, skeleton(screen(), policy)) is None
+
+
+def form(second_caption="CVV"):
+    rows = [("Card number", "f1"), (second_caption, "f2"), ("Name on card", "f3")]
+    nodes = "".join(
+        f'<node class="android.widget.TextView" text="{text}" package="{APP}" '
+        f'bounds="[0,{i * 300}][1080,{i * 300 + 100}]"/>'
+        f'<node class="android.widget.EditText" resource-id="{APP}:id/{rid}" text="" '
+        f'clickable="true" package="{APP}" bounds="[0,{i * 300 + 100}][1080,{i * 300 + 250}]"/>'
+        for i, (text, rid) in enumerate(rows))
+    return (f'<hierarchy><node class="android.widget.FrameLayout" package="{APP}" '
+            f'bounds="[0,0][1080,2400]">{nodes}<node class="android.widget.Button" '
+            f'resource-id="{APP}:id/b" text="Submit" clickable="true" package="{APP}" '
+            f'bounds="[0,2000][1080,2200]"/></node></hierarchy>')
+
+
+def test_form_fields_carry_their_captions(policy):
+    captions = {i["resource_id"]: i.get("caption") for i in skeleton(form(), policy)
+                if i.get("editable")}
+    assert captions == {f"{APP}:id/f1": "Card number", f"{APP}:id/f2": "CVV",
+                        f"{APP}:id/f3": "Name on card"}
+
+
+def test_captions_with_digits_are_dropped(policy):
+    items = skeleton(form(second_caption="Code 482913"), policy)
+    assert "482913" not in json.dumps(items)
+    assert not next(i for i in items if i["resource_id"].endswith("f2")).get("caption")
+
+
+def test_a_single_compose_box_gets_no_caption(policy):
+    items = skeleton(screen(message="see you soon"), policy)
+    assert "see you soon" not in json.dumps(items)
+    assert not any(i.get("caption") for i in items)

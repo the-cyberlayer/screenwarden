@@ -44,7 +44,7 @@ Reply with one JSON object only:
 Roles: send delivers content to another person. credential takes a password, PIN, card or \
 account number. payment authorises money. install adds software. settings changes the device. \
 confirm is a generic continue or approve button. external_text shows content from other people \
-or the web. Identify each element by the resource_id or label it has in the input. List only \
+or the web. A field's caption is the text shown next to it on a form. Identify each element by the resource_id or label it has in the input. List only \
 elements with a role. If unsure, leave the element out."""
 
 
@@ -60,9 +60,24 @@ def skeleton(ui_tree: str | bytes, policy: Policy) -> list[dict]:
     """The structure of a screen, with user content removed. WebViews are dropped whole."""
     web = set(policy.raw["untrusted_classes"])
     items: list[dict] = []
+    root = ET.fromstring(ui_tree)
+    # A form has several fields; a chat screen has one compose box. Only on forms is the
+    # static text right before a field sent, as that field's caption ("Card number").
+    form = sum(1 for n in root.iter("node") if "EditText" in n.attrib.get("class", "")) >= 2
+
+    def caption(siblings: list[ET.Element], index: int) -> str:
+        for prev in reversed(siblings[:index]):
+            if prev.tag != "node":
+                continue
+            a = prev.attrib
+            if "EditText" in a.get("class", "") or a.get("clickable") == "true":
+                return ""
+            return _safe_label(a.get("text", ""))
+        return ""
 
     def walk(element: ET.Element) -> None:
-        for child in element:
+        siblings = list(element)
+        for index, child in enumerate(siblings):
             if child.tag != "node":
                 walk(child)
                 continue
@@ -82,6 +97,8 @@ def skeleton(ui_tree: str | bytes, policy: Policy) -> list[dict]:
                 item["label"] = label
             if text and not label:
                 item["text_length"] = len(text)
+            if editable and form and caption(siblings, index):
+                item["caption"] = caption(siblings, index)
             for name, on in (("clickable", clickable), ("editable", editable),
                              ("password", password)):
                 if on:
@@ -91,7 +108,7 @@ def skeleton(ui_tree: str | bytes, policy: Policy) -> list[dict]:
                     items.append(item)
             walk(child)
 
-    walk(ET.fromstring(ui_tree))
+    walk(root)
     return items
 
 

@@ -35,8 +35,9 @@ phone screen -> clean the screen -> agent's model -> check the action -> phone
   OTP forwarding, credential entry, payments, installs and settings changes.
 - **Learn unknown apps (optional).** Generic rules cannot know which button in a new app sends a
   message or makes a payment. With `--learn`, Claude labels each new screen once: this control
-  sends, that field takes a password. ScreenWarden sends only the screen's structure, never its
-  text, and caches the result per screen layout. A label can only make a decision stricter. If
+  sends, that field takes a password. ScreenWarden sends the screen's structure: control types,
+  their ids, and short button labels and form-field captions with no digits. Messages, page
+  text, typed text, codes and numbers are never sent. The result is cached per screen layout. A label can only make a decision stricter. If
   Claude is unavailable, the strictest rules apply.
 - **`policy.yaml`** holds every pattern, package list, verdict and reason. There is one policy for
   all apps.
@@ -103,7 +104,7 @@ user's own goal.
 ```bash
 python3 -m venv .venv && . .venv/bin/activate
 pip install -e ".[agent,dev]"
-pytest            # 149 tests, no device needed
+pytest            # 152 tests, no device needed
 ```
 
 ## Running the demos
