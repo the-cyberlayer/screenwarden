@@ -52,7 +52,8 @@ phone screen -> clean the screen -> agent's model -> check the action -> phone
 | **LLM gateway** (`screenwarden.llm_gateway`) | Agents with a configurable Ollama URL | None. Change the model URL |
 
 The MCP server and the SDK are tested on an emulator. The adb proxy and the LLM gateway are tested
-only against fake servers so far.
+with simulated ends so far: the proxy or gateway itself runs for real, while the test plays the
+agent on one side and the phone or model on the other.
 
 ### MCP server
 
