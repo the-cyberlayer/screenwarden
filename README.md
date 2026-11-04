@@ -2,6 +2,8 @@
 
 Open-source security layer for AI agents that operate Android phones. By The CyberLayer.
 
+Submitted to the [CyberAgents Exchange](https://github.com/tenable/cyberagents-exchange) for Tenable SWARM Global 2026: [listing pull request #226](https://github.com/tenable/cyberagents-exchange/pull/226).
+
 ## The problem
 
 AI agents now use phones the way people do. They read the screen, tap, type and send SMS. Anything
