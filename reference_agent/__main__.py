@@ -47,7 +47,7 @@ def execute(device: Device, action: dict, nodes: list) -> str:
         device.type_text(action.get("text", ""))
     elif kind == "send_sms":
         device.compose_sms(action.get("recipient", ""), action.get("text", ""))
-        for _ in range(5):  # compose can take a while to open on a busy machine
+        for _ in range(12):  # compose can take a while to open on a busy machine
             time.sleep(3)
             send = next((n for n in ui.parse(device.dump_ui())
                          if n.label.lower().startswith("send")), None)
