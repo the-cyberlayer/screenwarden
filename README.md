@@ -4,6 +4,12 @@ Open-source security layer for AI agents that operate Android phones. By The Cyb
 
 Submitted to the [CyberAgents Exchange](https://github.com/tenable/cyberagents-exchange) for Tenable SWARM Global 2026: [listing pull request #226](https://github.com/tenable/cyberagents-exchange/pull/226).
 
+**Start here: the 8-minute pitch.** It explains the problem, the design, the live demos and the
+test results before you read the code.
+
+- [Pitch video (8 min, MP4)](docs/pitch/ScreenWarden_Pitch.mp4)
+- [Slides (PDF)](docs/pitch/ScreenWarden_Pitch.pdf) · [Slides (PowerPoint, with speaker notes)](docs/pitch/ScreenWarden_Pitch.pptx)
+
 ## The problem
 
 AI agents now use phones the way people do. They read the screen, tap, type and send SMS. Anything
